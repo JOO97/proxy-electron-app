@@ -10,11 +10,17 @@
 // │ ├── ...other-static-files-from-public
 // │
 process.env.DIST = join(__dirname, '../..')
-process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST, '../public')
+process.env.PUBLIC = app.isPackaged
+  ? process.env.DIST
+  : join(process.env.DIST, '../public')
 
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
+
+// import proxyChildProcess from '../child/requestProxy.js'
+
+import '../child/requestProxy.js'
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -72,7 +78,10 @@ async function createWindow() {
   })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  // proxyChildProcess.start()
+})
 
 app.on('window-all-closed', () => {
   win = null

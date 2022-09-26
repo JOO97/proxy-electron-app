@@ -1,11 +1,45 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { ipcRenderer } from 'electron'
+
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
+// import HelloWorld from './components/HelloWorld.vue'
+const logs = ref<string[]>([])
+
+interface IMsg {
+  type: string
+  content: string
+}
+
+ipcRenderer.on('cs-reply', (e, msg: IMsg) => {
+  // document.getElementById('recivemsg').value = msg
+  console.log(11, msg)
+  if (msg.type === 'data') {
+    msg.content && logs.value.push(msg.content)
+  } else {
+    console.log('cs-reply', msg.content)
+  }
+})
+
+const handleClick = (status: boolean) => {
+  status
+    ? ipcRenderer.send('open-child-now')
+    : ipcRenderer.send('kill-child-now')
+}
 </script>
 
 <template>
-  <div class="logo-box">
+  <div>
+    <el-button @click="handleClick(true)">start</el-button>
+    <el-button @click="handleClick(false)">close</el-button>
+  </div>
+  <ul>
+    <li v-for="item in logs">
+      <span>{{ item }}</span>
+    </li>
+  </ul>
+  <!-- <div class="logo-box">
     <img class="logo vite" src="./assets/vite.svg" >
     <img class="logo electron" src="./assets/electron.svg" >
     <img class="logo vue" src="./assets/vue.svg" >
@@ -14,7 +48,7 @@ import HelloWorld from './components/HelloWorld.vue'
   <div class="static-public">
     Place static files into the <code>/public</code> folder
     <img style="width:77px;" :src="'./node.png'" >
-  </div>
+  </div> -->
 </template>
 
 <style>
@@ -59,7 +93,7 @@ import HelloWorld from './components/HelloWorld.vue'
 }
 
 .logo.electron:hover {
-  filter: drop-shadow(0 0 2em #9FEAF9);
+  filter: drop-shadow(0 0 2em #9feaf9);
 }
 
 .logo.vue:hover {
