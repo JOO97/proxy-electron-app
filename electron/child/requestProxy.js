@@ -20,6 +20,7 @@ ipcMain.on('open-child-now', e => {
       content: iconv.decode(data, 'GBK'),
     })
   })
+
   mySpawn[mySpawn.length] = spawn
   e.sender.send('cs-reply', {
     type: 'msg',
@@ -29,13 +30,14 @@ ipcMain.on('open-child-now', e => {
 
 ipcMain.on('kill-child-now', e => {
   console.log('关闭进程-->mainProcessGet:')
-  e.sender.send('cs-reply', {
-    type: 'msg',
-    content: '正在关闭所有打开的应用',
-  })
+
   // 收到消息, 关闭所有进程
   for (let i = 0; i < mySpawn.length; i++) {
     mySpawn[i].kill()
   }
   mySpawn = []
+  e.sender.send('cs-reply', {
+    type: 'close',
+    content: '进程关闭成功',
+  })
 })
